@@ -1,8 +1,8 @@
 import { Component, forwardRef, Input, signal, computed, ElementRef, viewChild, OnInit, OnDestroy } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { ClickOutsideDirective } from '../../../core/directives/click-outside.directive';
-import { DropdownOption, DropdownConfig } from '../models/components.model';
-import { DropdownSearchService } from './dropdown-search.service';
+import { ClickOutsideDirective } from '../../../../core/directives/click-outside.directive';
+import { DropdownOption, DropdownConfig } from '../../models/components.model';
+import { DropdownSearchService } from '../../services/dropdown-search.service';
 
 @Component({
   selector: 'sce-dropdown',
