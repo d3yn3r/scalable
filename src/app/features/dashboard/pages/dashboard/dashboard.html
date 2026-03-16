@@ -1,6 +1,57 @@
 <div class="space-y-6">
   <h1 class="text-2xl font-bold text-gray-800">Dashboard</h1>
 
+  <!-- Botones con icono -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
+    <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Icon buttons · Heroicons</h2>
+
+    <!-- Colores + heroicons via [iconName] -->
+    <div class="flex flex-wrap items-center gap-3">
+      <sce-button label="Back"      color="pink"   iconName="heroArrowLeft"      />
+      <sce-button label="Launch"    color="cyan"   iconName="heroRocketLaunch"   />
+      <sce-button label="Article"   color="blue"   iconName="heroDocumentText"   />
+      <sce-button label="Edit"      color="yellow" iconName="heroPencilSquare"   />
+      <sce-button label="Reviews"   color="red"    iconName="heroStar"           />
+      <sce-button label="Delete"    color="red"    iconName="heroTrash"          />
+    </div>
+
+    <!-- Tamaños -->
+    <div class="flex flex-wrap items-center gap-3 pt-2 border-t border-gray-100">
+      <p class="text-xs text-gray-400 w-full">Tamaños</p>
+      <sce-button label="Small"  color="indigo" iconName="heroArrowDownTray" size="sm" />
+      <sce-button label="Medium" color="indigo" iconName="heroArrowDownTray" size="md" />
+      <sce-button label="Large"  color="indigo" iconName="heroArrowDownTray" size="lg" />
+    </div>
+
+    <!-- Ejecutar método + estados -->
+    <div class="flex flex-wrap items-center gap-3 pt-2 border-t border-gray-100">
+      <p class="text-xs text-gray-400 w-full">Ejecutando métodos</p>
+
+      <!-- Guarda y muestra loading mientras trabaja -->
+      <sce-button
+        [label]="isSaving() ? 'Saving...' : 'Save record'"
+        [iconName]="isSaving() ? 'heroArrowPath' : 'heroCheckCircle'"
+        [disabled]="isSaving()"
+        color="green"
+        type="submit"
+        (clicked)="onSave()" />
+
+      <!-- Eliminar con confirm dialog -->
+      <sce-button
+        label="Delete record"
+        iconName="heroTrash"
+        color="red"
+        (clicked)="onDelete()" />
+
+      <!-- Disabled explícito -->
+      <sce-button
+        label="Disabled"
+        iconName="heroArrowLeft"
+        color="gray"
+        [disabled]="true" />
+    </div>
+  </div>
+
   <!-- Tipos básicos -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-3">
     <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Tipos básicos</h2>
@@ -36,6 +87,104 @@
       <sce-dropdown [options]="options" [config]="localConfig" placeholder="Select options..." />
 
       <sce-rich-text-editor formControlName="descripcion" />
+
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">
+      <!-- Barra determinada -->
+      <sce-progress [value]="75" label="Uploading..." [showValue]="true" />
+
+      <!-- Barra indeterminada -->
+      <sce-progress [indeterminate]="true" color="success" />
+
+      <!-- Circular con porcentaje -->
+      <sce-progress type="circular" [value]="60" [showValue]="true" size="lg" />
+
+      <!-- Circular girando -->
+      <sce-progress type="circular" [indeterminate]="true" color="primary" />
+
+      <!-- Dots -->
+      <sce-progress type="dots" color="primary" size="md" />
+
+      <!-- Skeleton -->
+      <sce-progress type="skeleton" size="lg" />
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">
+
+      <!-- Ejemplo 1: búsqueda remota con debounce -->
+      <div class="flex flex-col gap-3">
+        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide">1 · Búsqueda remota (debounce 300 ms)</p>
+        <sce-search-bar placeholder="Search clients..." (search)="onSearch($event)" />
+        @if (searchLoading()) {
+        <sce-progress type="dots" size="sm" color="primary" />
+        } @else if (searchResults().length) {
+        <ul class="text-sm text-gray-600 space-y-1 pl-1">
+          @for (r of searchResults(); track r.value) {
+          <li class="flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 shrink-0"></span>
+            {{ r.label }}
+          </li>
+          }
+        </ul>
+        } @else if (searchQuery()) {
+        <p class="text-xs text-gray-400">No results for "{{ searchQuery() }}"</p>
+        } @else {
+        <p class="text-xs text-gray-400">Escribe para buscar en la API…</p>
+        }
+      </div>
+
+      <!-- Ejemplo 2: two-way binding + filtrado local -->
+      <div class="flex flex-col gap-3">
+        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide">2 · Two-way binding + filtrado local</p>
+        <sce-search-bar placeholder="Filter options..." [(value)]="twoWayQuery" [debounceMs]="0" />
+        <p class="text-xs text-gray-500">
+          Valor actual: <code class="bg-gray-100 px-1 rounded">{{ twoWayQuery() || '—' }}</code>
+        </p>
+        @if (twoWayQuery()) {
+        <ul class="text-sm text-gray-600 space-y-1 pl-1">
+          @for (o of filteredLocal(); track o.value) {
+          <li class="flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0"></span>
+            {{ o.label }}
+          </li>
+          } @empty {
+          <li class="text-xs text-gray-400">Sin coincidencias</li>
+          }
+        </ul>
+        } @else {
+        <p class="text-xs text-gray-400">Escribe para filtrar las opciones locales…</p>
+        }
+      </div>
+
+      <!-- Ejemplo 3: con handler de clear -->
+      <div class="flex flex-col gap-3">
+        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide">3 · Con handler de clear</p>
+        <sce-search-bar placeholder="Search & clear..." (search)="onSearchWithClear($event)" (cleared)="loadAll()" />
+        @if (clearLoading()) {
+        <sce-progress type="dots" size="sm" color="warning" />
+        } @else if (clearResults().length) {
+        <ul class="text-sm text-gray-600 space-y-1 pl-1">
+          @for (r of clearResults(); track r.value) {
+          <li class="flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0"></span>
+            {{ r.label }}
+          </li>
+          }
+        </ul>
+        } @else {
+        <p class="text-xs text-gray-400">Usa la ✕ para limpiar y resetear resultados</p>
+        }
+      </div>
+
+      <!-- Ejemplo 4: deshabilitado -->
+      <div class="flex flex-col gap-3">
+        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide">4 · Deshabilitado</p>
+        <sce-search-bar placeholder="Not available..." [disabled]="true" />
+        <p class="text-xs text-gray-400">
+          El campo bloquea interacción cuando <code class="bg-gray-100 px-1 rounded">[disabled]="true"</code>
+        </p>
+      </div>
 
     </div>
   </div>
